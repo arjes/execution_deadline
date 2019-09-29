@@ -95,6 +95,50 @@ instance.perform # No errors are thrown and :abcd returned. Even though
                  # checked against the remaining 0.9s, and allowed to continue
 ```
 
+Deadlines are also usable on class methods and module methods.
+
+```ruby
+class SlowClass
+  extend ExecutionDeadline::Helpers
+
+  deadline in: 1
+  def self.perform
+    sub_method_1
+    sub_method_1
+    method_never_called
+  end
+
+  deadline runs_for: 0.6
+  def self.sub_method_1
+    sleep 0.7
+  end
+
+  def self.method_never_called; end
+end
+
+SlowClass..perform # Throws OutOfTime error
+
+module SlowModule
+  extend ExecutionDeadline::Helpers
+
+  deadline in: 1
+  def self.perform
+    sub_method_1
+    sub_method_1
+    method_never_called
+  end
+
+  deadline runs_for: 0.6
+  def self.sub_method_1
+    sleep 0.7
+  end
+
+  def self.method_never_called; end
+end
+
+SlowModule.perform # Throws OutOfTime error
+```
+
 ### Raised Errors
 `ExecutionDeadline::OutOfTime` - Raised when a deadlined method is called but
   there is less time left then the expected runtime.
