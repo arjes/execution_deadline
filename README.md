@@ -30,36 +30,6 @@ Or install it yourself as:
 
 ## Usage
 
-### TL;DR;
-
-```ruby
-class Someclass
-  extend ExecutionDeadline
-
-  deadline in_seconds: 2 # or 2.seconds if using active support
-  def potentially_slow_method
-    # This method will be terminated at a safe location if it exceeds the
-    # deadline of 2 seconds.
-
-    method_expected_to_take_half_second # up to half a second consumed
-
-  end
-
-  deadline runs_for: 0.5
-  def method_expected_to_take_half_second
-    # Method are never interrupted mid execution.
-    #
-    # Since this method is expected to run for half a second ExecutionDeadline
-    # performs two tasks:
-    #   1) The method will not run, and an ExecutionDeadline::OutOfTime is
-    #      raised if there is less than 0.5 left in the deadline
-    #   2) An ExecutionDeadline::DeadlineExceeded exception is raised if the
-    #      method comples and has passed the deadline
-  end
-
-end
-```
-
 ### Deadline Enforcement
 
 Deadlines are enforced only at breakpoints in the code specifically marked as
@@ -125,7 +95,14 @@ instance.perform # No errors are thrown and :abcd returned. Even though
                  # checked against the remaining 0.9s, and allowed to continue
 ```
 
+### Raised Errors
+`ExecutionDeadline::OutOfTime` - Raised when a deadlined method is called but
+  there is less time left then the expected runtime.
 
+`ExecutionDeadline::DeadlineExceeded` - Raised when a deadlined method is
+and completed after the deadline time has passed.
+
+All errors are subclasses of `ExecutionDeadline::DeadlineError`
 
 ## Development
 
