@@ -8,16 +8,16 @@ module ExecutionDeadline
       @expires_at = expires_at
     end
 
-    def runs_for(method_name, duration)
+    def runs_for(duration)
       time_left < duration &&
         raise(
           OutOfTime,
-          "Unable to run method #{method_name}, " \
-          "expected run time #{duration} but only #{time_left}s left"
+          "Unable to run method expected run time #{duration} " \
+          "but only #{time_left}s left"
         )
 
       yield.tap do
-        expired? && raise(DeadlineExceeded, "Deadline exceeded after #{method_name}")
+        expired? && raise(DeadlineExceeded)
       end
     end
 
