@@ -13,12 +13,9 @@ module ExecutionDeadline
           raises: options[:raises]
         )
 
-        if ExecutionDeadline.current_deadline && options[:runs_for]
-          ExecutionDeadline.current_deadline.runs_for(options[:runs_for]) do
-            send(options[:aliased_method_name], *args, &blk)
-          end
-        else
-          send(options[:aliased_method_name], *args, &blk)
+        ExecutionDeadline.current_deadline&.require_seconds_left!(options[:runs_for]) if options[:runs_for]
+        send(options[:aliased_method_name], *args, &blk).tap do
+          ExecutionDeadline.current_deadline&.check_deadline_expiration!
         end
       ensure
         ExecutionDeadline.clear_deadline! if set_deadline
