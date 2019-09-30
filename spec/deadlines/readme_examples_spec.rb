@@ -6,6 +6,42 @@ require 'spec_helper'
 RSpec.describe 'README examples' do
   let(:instance) { klass.new }
 
+  describe 'raising a custom error message' do
+    let(:err_klass) { klass.const_get(:CustomError) }
+    let(:klass) do
+      Module.new do
+        class CustomError < StandardError; end
+        extend ExecutionDeadline::Helpers
+
+        deadline in: 1, raises: CustomError
+        def self.runs_out_of_time
+          sub_method_1
+          sub_method_1
+        end
+
+        deadline runs_for: 0.6
+        def self.sub_method_1
+          sleep 0.8
+        end
+
+        deadline in: 1, raises: CustomError
+        def self.runs_over_time
+          runs_over
+        end
+
+        deadline runs_for: 0.5
+        def self.runs_over
+          sleep 1.1
+        end
+      end
+    end
+
+    it 'rasies custom errors' do
+      expect { klass.runs_over_time }.to raise_error err_klass
+      expect { klass.runs_out_of_time }.to raise_error err_klass
+    end
+  end
+
   describe 'their usage on module methods' do
     let(:klass) do
       Module.new do

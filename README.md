@@ -148,6 +148,46 @@ and completed after the deadline time has passed.
 
 All errors are subclasses of `ExecutionDeadline::DeadlineError`
 
+#### Customizing Errors
+
+The errors raised may be customized using the `raises` keyword. The error to be
+raised may _only_ be set when the deadline is defined (using the `in` keyword)
+
+```ruby
+module SlowModule
+  class CustomError < StandardError; end
+  extend ExecutionDeadline::Helpers
+
+  deadline in: 1, raises: CustomError
+  def self.runs_out_of_time
+    sub_method_1
+    sub_method_1
+    method_never_called
+  end
+
+  deadline runs_for: 0.6
+  def self.sub_method_1
+    sleep 0.8
+  end
+
+  deadline in: 1, raises: CustomError
+  def self.runs_over_time
+    runs_over
+    method_never_called
+  end
+
+  deadline runs_for: 0.5
+  def self.runs_over
+    sleep 1.1
+  end
+
+  def self.method_never_called; end
+end
+
+SlowModule.runs_out_of_time # Throws CustomError error in place of OutOfTime
+SlowModule.runs_over_time # Throws CustomError error in place of DeadlineExceeded
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

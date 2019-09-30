@@ -1,17 +1,16 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe 'Inheritance of Method Defined' do
   describe 'inheritance of instance method defined' do
-
     let(:other_meta_module) do
       Module.new do
         def call_times
           @call_times ||= 0
         end
 
-        def call_times=(val)
-          @call_times = val
-        end
+        attr_writer :call_times
 
         def method_added(method_added)
           self.call_times += 1
@@ -48,9 +47,7 @@ RSpec.describe 'Inheritance of Method Defined' do
           @call_times ||= 0
         end
 
-        def call_times=(val)
-          @call_times = val
-        end
+        attr_writer :call_times
 
         def singleton_method_added(method_added)
           self.call_times += 1

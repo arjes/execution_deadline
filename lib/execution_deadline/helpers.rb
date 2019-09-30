@@ -9,7 +9,8 @@ module ExecutionDeadline
     WRAPPED_METHOD = Proc.new do |options|
       Proc.new do |*args, &blk|
         set_deadline = options[:in]  && ExecutionDeadline.set_deadline(
-          expires_at: Time.now + options[:in]
+          expires_at: Time.now + options[:in],
+          raises: options[:raises]
         )
 
         if ExecutionDeadline.current_deadline && options[:runs_for]

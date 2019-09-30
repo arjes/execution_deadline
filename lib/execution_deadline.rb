@@ -16,8 +16,8 @@ module ExecutionDeadline
   #   expire
   # @return [Boolean|Deadline] returns false if a deadline is already set, and
   #   returns a deadline object if it was successfully set
-  def self.set_deadline(expires_at:)
+  def self.set_deadline(expires_at:, raises: nil)
     !current_deadline &&
-      Thread.current[:deadline] = Deadline.new(expires_at: expires_at)
+      Thread.current[:deadline] = Deadline.new(expires_at: expires_at, raises: raises)
   end
 end
