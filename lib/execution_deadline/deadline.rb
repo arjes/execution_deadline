@@ -9,17 +9,17 @@ module ExecutionDeadline
       @raises = raises
     end
 
-    def runs_for(duration)
-      time_left < duration &&
+    def require_seconds_left!(seconds_left)
+      time_left < seconds_left &&
         raise(
           @raises || OutOfTime,
-          "Unable to run method expected run time #{duration} " \
+          "Unable to run method expected run time #{seconds_left} " \
           "but only #{time_left}s left"
         )
+    end
 
-      yield.tap do
-        expired? && raise(@raises || DeadlineExceeded)
-      end
+    def check_deadline_expiration!
+      expired? && raise(@raises || DeadlineExceeded)
     end
 
     def time_left
