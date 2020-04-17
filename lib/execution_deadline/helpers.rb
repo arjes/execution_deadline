@@ -2,26 +2,10 @@
 
 require 'execution_deadline/version'
 require 'execution_deadline/deadline'
+require 'execution_deadline/method_proxy'
 
 module ExecutionDeadline
   module Helpers
-    UNWRAPPED_METHOD_NAME_SUFFIX = "_without_deadline"
-    WRAPPED_METHOD = Proc.new do |options|
-      Proc.new do |*args, &blk|
-        set_deadline = options[:in]  && ExecutionDeadline.set_deadline(
-          expires_at: Time.now + options[:in],
-          raises: options[:raises]
-        )
-
-        ExecutionDeadline.current_deadline&.require_seconds_left!(options[:runs_for]) if options[:runs_for]
-        send(options[:aliased_method_name], *args, &blk).tap do
-          ExecutionDeadline.current_deadline&.check_deadline_expiration!
-        end
-      ensure
-        ExecutionDeadline.clear_deadline! if set_deadline
-      end
-    end
-
     def deadline(options = {})
       options[:in] ||
         options[:runs_for] ||
@@ -33,26 +17,17 @@ module ExecutionDeadline
     def method_added(method_name)
       return super unless _has_deadline_config?
 
-      options = _fetch_and_reset_deadline_config
-      options[:aliased_method_name] ||= "_#{method_name}#{UNWRAPPED_METHOD_NAME_SUFFIX}".to_sym
-
-      alias_method options[:aliased_method_name], method_name
-
-      define_method(method_name, &WRAPPED_METHOD.call(options))
+      ExecutionDeadline::MethodProxy
+        .for_class(self)
+        .wrap_implementation(method_name, _fetch_and_reset_deadline_config)
     end
 
     def singleton_method_added(method_name)
       return super unless _has_deadline_config?
 
-      options = _fetch_and_reset_deadline_config
-
-      options[:aliased_method_name] ||= "_#{method_name}#{UNWRAPPED_METHOD_NAME_SUFFIX}".to_sym
-
-      singleton_class.class_eval do
-        alias_method options[:aliased_method_name], method_name
-      end
-
-      define_singleton_method(method_name, &WRAPPED_METHOD.call(options))
+      ExecutionDeadline::MethodProxy
+        .for_class(singleton_class)
+        .wrap_implementation(method_name, _fetch_and_reset_deadline_config)
     end
 
     private
@@ -64,9 +39,5 @@ module ExecutionDeadline
     def _fetch_and_reset_deadline_config
       @last_deadline_config.tap { @last_deadline_config = nil }
     end
-
-    def _add_deadlined_method(method_name, options)
-    end
-
   end
 end
