@@ -17,15 +17,15 @@ module ExecutionDeadline
     end
 
     def inspect
-      "ExecutionDeadline::#{@_exuection_deadline_built_for}Proxy"
+      "ExecutionDeadline::#{@_execution_deadline_built_for}Proxy"
     end
 
-    def _exuection_deadline_built_for
-      @_exuection_deadline_built_for
+    def _execution_deadline_built_for
+      @_execution_deadline_built_for
     end
 
-    def _exuection_deadline_built_for=(val)
-      @_exuection_deadline_built_for = val
+    def _execution_deadline_built_for=(val)
+      @_execution_deadline_built_for = val
     end
 
     def wrap_implementation(method_name, config)

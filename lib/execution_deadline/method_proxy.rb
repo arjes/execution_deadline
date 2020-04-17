@@ -9,7 +9,7 @@ module ExecutionDeadline
     def self.find_for_class(klass)
       klass.ancestors.detect do |a|
         a.is_a?(Deadliner) &&
-          a._exuection_deadline_built_for == klass
+          a._execution_deadline_built_for == klass
       end
     end
 
@@ -22,7 +22,7 @@ module ExecutionDeadline
     def self.construct_for_class(klass)
       Module.new do
         extend Deadliner
-      end.tap { |m| m._exuection_deadline_built_for = klass }
+      end.tap { |m| m._execution_deadline_built_for = klass }
     end
   end
 end
