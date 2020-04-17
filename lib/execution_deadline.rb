@@ -20,4 +20,12 @@ module ExecutionDeadline
     !current_deadline &&
       Thread.current[:deadline] = Deadline.new(expires_at: expires_at, raises: raises)
   end
+
+  def self.extended(other)
+    other.extend(Helpers)
+  end
+
+  def self.included(other)
+    other.extend(Helpers)
+  end
 end
