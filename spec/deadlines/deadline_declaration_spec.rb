@@ -92,4 +92,22 @@ RSpec.describe 'deadline declaration' do
       expect { klass.new.foo }.to raise_error ExecutionDeadline::DeadlineExceeded
     end
   end
+
+  describe 'inheritance of deadlines' do
+    let(:klass) do
+      Class.new do
+        extend ExecutionDeadline
+
+        deadline in: 1
+        def foo
+          sleep 1.1
+        end
+      end
+    end
+
+    it 'rasies if execution time expires in the execution block' do
+      new_klass = Class.new(klass) {}
+      expect { new_klass.new.foo }.to raise_error ExecutionDeadline::DeadlineExceeded
+    end
+  end
 end

@@ -15,15 +15,21 @@ module ExecutionDeadline
     end
 
     def method_added(method_name)
-      return super unless _has_deadline_config?
+      super
+
+      return unless _has_deadline_config?
 
       ExecutionDeadline::MethodProxy
         .for_class(self)
         .wrap_implementation(method_name, _fetch_and_reset_deadline_config)
+
+      super
     end
 
     def singleton_method_added(method_name)
-      return super unless _has_deadline_config?
+      super
+
+      return unless _has_deadline_config?
 
       ExecutionDeadline::MethodProxy
         .for_class(singleton_class)
