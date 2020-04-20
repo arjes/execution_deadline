@@ -34,9 +34,8 @@ RSpec.describe 'Inheritance of Method Defined' do
 
     it 'called the super method three times' do
       # 1 - Bar
-      # 2 - _foo_without_deadline
       # 3 - foo
-      expect(klass.call_times).to eq 3
+      expect(klass.call_times).to eq 2
     end
   end
 
