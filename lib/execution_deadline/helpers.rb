@@ -22,8 +22,6 @@ module ExecutionDeadline
       ExecutionDeadline::MethodProxy
         .for_class(self)
         .wrap_implementation(method_name, _fetch_and_reset_deadline_config)
-
-      super
     end
 
     def singleton_method_added(method_name)
@@ -34,6 +32,11 @@ module ExecutionDeadline
       ExecutionDeadline::MethodProxy
         .for_class(singleton_class)
         .wrap_implementation(method_name, _fetch_and_reset_deadline_config)
+    end
+
+    def self.extended(mod)
+      ExecutionDeadline::MethodProxy.for_class(mod.singleton_class)
+      ExecutionDeadline::MethodProxy.for_class(mod)
     end
 
     private
