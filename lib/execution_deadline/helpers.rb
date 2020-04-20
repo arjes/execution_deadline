@@ -35,8 +35,8 @@ module ExecutionDeadline
     end
 
     def self.extended(mod)
-      ExecutionDeadline::MethodProxy.for_class(singleton_class)
-      ExecutionDeadline::MethodProxy.for_class(self)
+      ExecutionDeadline::MethodProxy.for_class(mod.singleton_class)
+      ExecutionDeadline::MethodProxy.for_class(mod)
     end
 
     private
