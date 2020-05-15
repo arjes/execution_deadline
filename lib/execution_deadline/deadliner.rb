@@ -1,3 +1,5 @@
+require 'timeout'
+
 module ExecutionDeadline
   module Deadliner
     WRAPPED_METHOD = Proc.new do |options|
@@ -7,10 +9,21 @@ module ExecutionDeadline
           raises: options[:raises]
         )
 
-        ExecutionDeadline.current_deadline&.require_seconds_left!(options[:runs_for]) if options[:runs_for]
-        super(*args, **kwargs, &blk).tap do
-          ExecutionDeadline.current_deadline&.check_deadline_expiration!
+        current_deadline = ExecutionDeadline.current_deadline
+        current_deadline&.require_seconds_left!(options[:runs_for]) if options[:runs_for]
+
+        result = if !options[:interruptible]
+          super(*args, **kwargs, &blk)
+        else
+          Timeout.timeout(current_deadline&.time_left) do
+            super(*args, **kwargs, &blk)
+          rescue => Timeout::Error
+          end
         end
+
+        current_deadline&.check_deadline_expiration!
+
+        result
       ensure
         ExecutionDeadline.clear_deadline! if set_deadline
       end
