@@ -84,11 +84,33 @@ RSpec.describe 'deadline declaration' do
         deadline in: 1
         def foo
           sleep 1.1
+          bar
+        end
+
+        deadline in: 1, interruptible: true
+        def interruptible_foo
+          sleep 1.1
+          bar
+        end
+
+        def bar
         end
       end
     end
 
     it 'rasies if execution time expires in the execution block' do
+      expect { klass.new.foo }.to raise_error ExecutionDeadline::DeadlineExceeded
+    end
+
+    it 'still calls bar' do
+      instance = klass.new
+      expect(instance).to receive(:bar)
+      instance.foo rescue nil
+    end
+
+    it 'aborts before calling bar' do
+      instance = klass.new
+      expect(instance).not_to receive(:bar)
       expect { klass.new.foo }.to raise_error ExecutionDeadline::DeadlineExceeded
     end
   end

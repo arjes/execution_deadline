@@ -139,6 +139,23 @@ end
 SlowModule.perform # Throws OutOfTime error
 ```
 
+### Method interruption
+Ruby's Timeout module is a bit heavy handed and could terminate operations at any point in your code flow. This gem
+is an attempt at marking interruption points at the start and end of slow methods. It should always be preferred to
+use a more graceful method, but sometimes a hammer is called for.
+
+If you declare a deadline with `interruptible: true`. Ruby's Timeout module will be wrapped around your method set to
+timeout at the remaining deadline time. The error will be replaced with the value of `raises` or the built in classes.
+
+#### Example
+```
+deadline runs_for: 0.6, interruptible: true
+def self.sub_method_1
+  sleep 0.7
+end
+```
+
+
 ### Raised Errors
 `ExecutionDeadline::OutOfTime` - Raised when a deadlined method is called but
   there is less time left then the expected runtime.
