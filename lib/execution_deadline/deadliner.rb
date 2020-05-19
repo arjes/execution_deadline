@@ -17,7 +17,7 @@ module ExecutionDeadline
         else
           Timeout.timeout(current_deadline&.time_left) do
             super(*args, **kwargs, &blk)
-          rescue => Timeout::Error
+          rescue Timeout::Error
           end
         end
 
